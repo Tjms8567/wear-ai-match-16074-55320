@@ -122,6 +122,21 @@ const ProductDetail = () => {
   }
 
   if (!product) {
+    if (!isSupabaseConfigured) {
+      return (
+        <div className="min-h-screen bg-background">
+          <Header />
+          <div className="container py-12 text-center">
+            <h1 className="text-2xl font-bold mb-4">Cloud Backend Not Configured</h1>
+            <p className="text-muted-foreground mb-6">
+              Product details require Cloud to be enabled. Please enable Cloud in your project settings.
+            </p>
+            <Button onClick={() => navigate('/products')}>Back to Products</Button>
+          </div>
+          <Footer />
+        </div>
+      );
+    }
     return (
       <div className="min-h-screen bg-background">
         <Header />
