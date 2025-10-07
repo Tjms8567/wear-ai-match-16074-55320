@@ -28,7 +28,7 @@ interface Variant {
   size: string;
   color_name: string;
   color_hex: string;
-  stock_quantity: number;
+  stock: number;
 }
 
 const ProductDetail = () => {
@@ -53,7 +53,7 @@ const ProductDetail = () => {
       }
       try {
         const { data: productData, error: productError } = await supabase
-          .from('products')
+          .from('products' as any)
           .select('*')
           .eq('id', id)
           .single();
@@ -61,19 +61,19 @@ const ProductDetail = () => {
         if (productError) throw productError;
 
         const { data: variantsData, error: variantsError } = await supabase
-          .from('product_variants')
+          .from('product_variants' as any)
           .select('*')
           .eq('product_id', id)
-          .gt('stock_quantity', 0);
+          .gt('stock', 0);
 
         if (variantsError) throw variantsError;
 
-        setProduct(productData);
-        setVariants(variantsData || []);
+        setProduct(productData as any);
+        setVariants((variantsData as any) || []);
         
         if (variantsData && variantsData.length > 0) {
-          setSelectedSize(variantsData[0].size);
-          setSelectedColor(variantsData[0].color_name);
+          setSelectedSize((variantsData as any)[0].size);
+          setSelectedColor((variantsData as any)[0].color_name);
         }
       } catch (error) {
         console.error('Error fetching product:', error);

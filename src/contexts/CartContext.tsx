@@ -48,7 +48,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const { data, error } = await supabase
-        .from('cart_items')
+        .from('cart_items' as any)
         .select(`
           *,
           product:products(title, base_price, images),
@@ -57,7 +57,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         .eq('user_id', user.id);
 
       if (error) throw error;
-      setItems(data || []);
+      setItems((data as any) || []);
     } catch (error) {
       console.error('Error fetching cart:', error);
       toast.error('Failed to load cart');
@@ -82,7 +82,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const { error } = await supabase
-        .from('cart_items')
+        .from('cart_items' as any)
         .upsert({
           user_id: user.id,
           product_id: productId,
@@ -110,7 +110,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const { error } = await supabase
-        .from('cart_items')
+        .from('cart_items' as any)
         .update({ quantity })
         .eq('id', itemId);
 
@@ -129,7 +129,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
     try {
       const { error } = await supabase
-        .from('cart_items')
+        .from('cart_items' as any)
         .delete()
         .eq('id', itemId);
 
@@ -151,7 +151,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const { error } = await supabase
-        .from('cart_items')
+        .from('cart_items' as any)
         .delete()
         .eq('user_id', user.id);
 

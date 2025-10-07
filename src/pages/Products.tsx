@@ -129,7 +129,7 @@ const Products = () => {
           setLoading(false);
           return;
         }
-        let query = supabase.from('products').select('*').eq('active', true);
+        let query = supabase.from('products' as any).select('*').eq('active', true);
         
         if (filter !== 'all') {
           query = query.eq('gender', filter === 'unisex' ? 'Unisex' : filter === 'mens' ? 'Mens' : 'Kids');
@@ -137,7 +137,7 @@ const Products = () => {
 
         const { data, error } = await query;
         if (error) throw error;
-        setProducts(data || []);
+        setProducts((data as any) || []);
       } catch (error) {
         console.error('Error fetching products:', error);
         toast.error('Failed to load products');
