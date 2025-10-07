@@ -1,9 +1,12 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Filter } from "lucide-react";
+import { toast } from "sonner";
 
 const MOCK_PRODUCTS = [
   {
@@ -104,7 +107,43 @@ const MOCK_PRODUCTS = [
   },
 ];
 
+interface Product {
+  id: string;
+  title: string;
+  base_price: number;
+  images: string[];
+  product_type: string;
+  gender: string;
+}
+
 const Products = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        let query = supabase.from('products').select('*').eq('active', true);
+        
+        if (filter !== 'all') {
+          query = query.eq('gender', filter === 'unisex' ? 'Unisex' : filter === 'mens' ? 'Mens' : 'Kids');
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+        setProducts(data || []);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        toast.error('Failed to load products');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [filter]);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -119,7 +158,7 @@ const Products = () => {
         </div>
 
         <div className="flex flex-col md:flex-row gap-6 mb-8">
-          <Tabs defaultValue="all" className="w-full">
+          <Tabs value={filter} onValueChange={setFilter} className="w-full">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
               <TabsList>
                 <TabsTrigger value="all">All</TabsTrigger>
@@ -135,11 +174,29 @@ const Products = () => {
           </Tabs>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {MOCK_PRODUCTS.map((product) => (
-            <ProductCard key={product.id} {...product} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Loading products...</p>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">No products found</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                id={product.id}
+                name={product.title}
+                price={product.base_price}
+                image={product.images[0] || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab'}
+                category={product.product_type}
+                colors={['#000000', '#FFFFFF', '#87CEEB']}
+              />
+            ))}
+          </div>
+        )}
       </main>
       <Footer />
     </div>
