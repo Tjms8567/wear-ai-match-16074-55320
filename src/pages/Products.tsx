@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
@@ -124,6 +124,11 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        if (!isSupabaseConfigured || !supabase) {
+          setProducts([]);
+          setLoading(false);
+          return;
+        }
         let query = supabase.from('products').select('*').eq('active', true);
         
         if (filter !== 'all') {

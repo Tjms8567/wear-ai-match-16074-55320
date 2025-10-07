@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
 import { toast } from 'sonner';
 
@@ -40,7 +40,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchCart = async () => {
-    if (!user) {
+    if (!user || !isSupabaseConfigured || !supabase) {
       setItems([]);
       setLoading(false);
       return;
@@ -75,6 +75,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       toast.error('Please sign in to add items to cart');
       return;
     }
+    if (!isSupabaseConfigured || !supabase) {
+      toast.error('Cloud backend not configured');
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -99,6 +103,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const updateQuantity = async (itemId: string, quantity: number) => {
     if (quantity < 1) return;
+    if (!isSupabaseConfigured || !supabase) {
+      toast.error('Cloud backend not configured');
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -115,6 +123,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const removeFromCart = async (itemId: string) => {
+    if (!isSupabaseConfigured || !supabase) {
+      toast.error('Cloud backend not configured');
+      return;
+    }
     try {
       const { error } = await supabase
         .from('cart_items')
@@ -132,6 +144,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const clearCart = async () => {
     if (!user) return;
+    if (!isSupabaseConfigured || !supabase) {
+      toast.error('Cloud backend not configured');
+      return;
+    }
 
     try {
       const { error } = await supabase

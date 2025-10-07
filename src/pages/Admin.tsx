@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -21,6 +21,11 @@ const Admin = () => {
         navigate('/auth');
         return;
       }
+      if (!isSupabaseConfigured || !supabase) {
+        toast.error('Cloud backend not configured');
+        navigate('/');
+        return;
+      }
 
       try {
         const { data, error } = await supabase.rpc('has_role', {
@@ -36,7 +41,7 @@ const Admin = () => {
           return;
         }
 
-        setIsAdmin(data);
+        setIsAdmin(data as boolean);
       } catch (error) {
         console.error('Error checking admin status:', error);
         toast.error('Failed to verify admin access');

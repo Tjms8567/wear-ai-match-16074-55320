@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useCart } from '@/contexts/CartContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -47,6 +47,10 @@ const ProductDetail = () => {
     if (!id) return;
 
     const fetchProduct = async () => {
+      if (!isSupabaseConfigured || !supabase) {
+        setLoading(false);
+        return;
+      }
       try {
         const { data: productData, error: productError } = await supabase
           .from('products')
